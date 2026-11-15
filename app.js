@@ -483,13 +483,13 @@ function kpiHtml(){
 }
 function lockPanel(){
   var n = Object.keys(G.kicked || {}).length;
-  return '<div class="lockbox"><div class="li">🔒</div><div><div style="font-weight:900">已關閉加入</div><p class="small" style="margin:.2rem 0">已在教室的同學不受影響（斷線也能回來）；新同學掃碼會被擋下' + (n ? '，目前已擋下 <b>' + n + '</b> 位' : '') + '。</p><button class="btn green sm" data-act="unlock">🔓 開放加入</button></div></div>';
+  return '<div class="lockbox"><div class="li">🔒</div><div><div style="font-weight:900">已關閉加入</div><p class="small" style="margin:.2rem 0">已在教室的同學不受影響（斷線也能回來）；新同學掃碼會被擋下' + (n ? '，目前已擋下 <b>' + n + '</b> 位' : '') + '。</p><div class="go" style="margin-top:.3rem"><button class="btn green sm" data-act="unlock">🔓 開放加入</button><button class="btn red sm" data-act="netOff">🚪 關閉教室</button></div></div></div>';
 }
 function sideHtml(){
   var h = '<div class="card pin roomcard noprint"><div style="font-weight:900">🏫 ' + esc(clsName()) + '</div>';
-  if(!NET.want) h += '<p class="small">學生用手機掃 QR code 加入。</p><button class="btn red" data-act="netOn">📱 開放手機加入</button>';
+  if(!NET.want) h += (G.netOff ? '<p class="alert warn" style="text-align:left">🚪 教室已關閉：學生都已離線，舊的 QR code 和代碼失效。問題和文字雲都還在。</p><p class="small">要再上課，按下面重新開放（會換一個新代碼）。</p>' : '<p class="small">學生用手機掃 QR code 加入。</p>') + '<button class="btn red" data-act="netOn">📱 ' + (G.netOff ? '重新開放（新代碼）' : '開放手機加入') + '</button>';
   else if(G.locked) h += lockPanel();
-  else h += '<div class="small">手機掃描，或到 ' + esc(ONLINE.replace('https://', '')) + '?join 輸入代碼</div><div class="qr" id="qrJoin"></div><div class="code">' + esc(NET.code) + '</div><div class="go" style="justify-content:center;margin-top:.4rem"><button class="btn alt sm" data-act="bigQR">🔍 放大</button><button class="btn alt sm" data-act="copyJoin">📋 連結</button><button class="btn alt sm" data-act="lock">🔒 關閉加入</button></div>' +
+  else h += '<div class="small">手機掃描，或到 ' + esc(ONLINE.replace('https://', '')) + '?join 輸入代碼</div><div class="qr" id="qrJoin"></div><div class="code">' + esc(NET.code) + '</div><div class="go" style="justify-content:center;margin-top:.4rem"><button class="btn alt sm" data-act="bigQR">🔍 放大</button><button class="btn alt sm" data-act="copyJoin">📋 連結</button><button class="btn alt sm" data-act="lock">🔒 關閉加入</button></div><div class="go" style="justify-content:center;margin-top:.4rem"><button class="btn red sm" data-act="netOff">🚪 關閉教室</button></div>' +
     (location.protocol === 'https:' && location.hostname === 'm255525.github.io' ? '' : '<p class="small">目前不是線上版網址，QR code 指向線上版。</p>');
   h += '<div class="kpis" id="kpis">' + kpiHtml() + '</div></div>';
   var nb = Object.keys(G.banned || {}).length;
@@ -825,7 +825,7 @@ var ACT = {
   bigQR:function(){ if(!NET.want) return; if(G && G.locked){ toast('目前關閉加入中，要先按「🔓 開放加入」'); return; } openModal('<div style="text-align:center"><h2>📱 掃描加入「' + esc(clsName()) + '」</h2><div class="qr" id="qrBig"></div><div style="font-size:3.2rem;font-weight:900;letter-spacing:.14em;color:var(--pin)">' + esc(NET.code) + '</div><p class="small">或打開 ' + esc(ONLINE.replace('https://', '')) + '?join 輸入代碼</p><div class="stack"><button class="btn alt" data-act="netOff">🚪 關閉教室（換新代碼）</button><button class="btn" data-act="close">關閉</button></div></div>', true); drawQR('qrBig', Math.min(420, window.innerWidth - 80, window.innerHeight - 300)); },
   netOn:function(){ if(G){ G.netOff = false; saveG(); } closeModal(); ensureNet(true); render(); },
   netOff:function(){ if(!G) return; guard(G.cid, {title:'🚪 關閉教室？', body:'<p>所有學生會離線，舊的 QR code 和連結從此失效。之後再開放會換一個新代碼。問題和文字雲會保留。</p>', btn:'關閉教室', danger:true}, function(){ ACT.netOffYes(); }); },
-  netOffYes:function(){ closeModal(); netStop(true); if(G){ G.netOff = true; G.locked = false; G.kicked = {}; G.allow = {}; G.banned = {}; G.room = P.newRoom(); saveG(); } render(); },
+  netOffYes:function(){ closeModal(); V.proj = false; netStop(true); if(G){ G.netOff = true; G.spot = 0; G.locked = false; G.kicked = {}; G.allow = {}; G.banned = {}; G.room = P.newRoom(); saveG(); } render(); toast('教室已關閉，學生都已離線'); },
   copyJoin:function(){ copyText(roomUrl(NET.code), '加入連結已複製'); },
   wipeAll:function(){
     var used = clsList().filter(function(c){ return clsInUse(c.id); }), locked = clsList().filter(function(c){ return hasPin(c.id); });
@@ -970,7 +970,7 @@ function renderStu(){
   if(!S.code){
     h += '<section class="card pin"><h2>📱 加入課堂提問牆</h2><p class="lead">輸入老師投影上的 6 碼代碼。</p><div class="amtin"><input id="codeIn" maxlength="6" autocapitalize="characters" autocomplete="off" placeholder="例如 AB3K7Q" style="text-align:center;letter-spacing:.2em;text-transform:uppercase"><button class="btn red" data-act="joinCode">加入</button></div></section>';
   } else if(S.closed){
-    h += '<section class="card pin"><h2>' + (S.closed === 4005 ? (t && t.locked ? '🔒 這個教室已關閉加入' : '🚫 你已被請出這個教室') : '🚪 教室已關閉，或老師還沒開放') + '</h2>' + (S.room ? '<p style="font-weight:900">🏫 ' + esc(S.room) + '</p>' : '') + '<p class="lead">' + (S.closed === 4005 && t && t.locked ? '老師暫停讓新同學加入。請跟老師確認，等老師開放後再按「再試一次」。' : '請看老師投影上的代碼是不是 <b>' + esc(S.code) + '</b>。') + '</p><div class="go"><button class="btn red" data-act="retry">再試一次</button><button class="btn alt" data-act="leave">輸入新代碼</button></div></section>';
+    h += '<section class="card pin"><h2>' + (S.closed === 4005 ? (t && t.locked ? '🔒 這個教室已關閉加入' : '🚫 你已被請出這個教室') : t ? '👋 老師已經關閉教室' : '🚪 教室已關閉，或老師還沒開放') + '</h2>' + (S.room ? '<p style="font-weight:900">🏫 ' + esc(S.room) + '</p>' : '') + '<p class="lead">' + (S.closed === 4005 && t && t.locked ? '老師暫停讓新同學加入。請跟老師確認，等老師開放後再按「再試一次」。' : (S.closed === 4004 && t ? '謝謝參與！這個代碼已經失效，下次上課請掃老師新的 QR code。' : '請看老師投影上的代碼是不是 <b>' + esc(S.code) + '</b>。')) + '</p><div class="go"><button class="btn red" data-act="retry">再試一次</button><button class="btn alt" data-act="leave">輸入新代碼</button></div></section>';
   } else if(!t){
     h += '<section class="card pin"><p class="bigstate">' + (NET.status === 'on' ? '等老師開教室…' : '連線中…') + '</p></section>';
   } else if(t.named && S.askWho){
