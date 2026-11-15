@@ -5,7 +5,7 @@
 2026-11-15 建立。使用者從「還有那些軟體的方向」清單中挑了第 1 項（課堂系列：匿名提問牆＋文字雲）。骨架（教室、分頁鎖、管理密碼、關閉加入、轉播站連線、標準配備）複製自 `peer-review-board`，**畫面改成軟木布告欄＋便條紙＋紅圖釘、文字雲是深綠毛氈板**。
 
 - 純靜態：`index.html`（CSS）＋`data.js`（訊息編解碼、讚數統計、文字雲斷詞合併與螺線排版；node 可 require，瀏覽器 `window.QAW`）＋`app.js`（老師 `T`、學生 `S`、連線 `NET`、投影畫面）＋`watermark.js`（列印浮水印，從同儕互評複製）＋`manual.html`＋PWA。
-- 本機預覽 port **8885**（`.claude/launch.json` 的 `classroom-qa-wall`；程式牆 `LOCAL_APPS`）。visitor-badge `m255525.classroomqawall`。預定線上網址 <https://m255525.github.io/classroom-qa-wall/>（寫死在 `app.js` 的 `ONLINE`，非 github.io 網址時 QR code 一律指向它）。**尚未建 GitHub repo**（使用者自己 `gh repo create`，上線後把程式牆從 `LOCAL_APPS` 移到 `REPO_META`、github-dashboard 一起補）。
+- 本機預覽 port **8885**（`.claude/launch.json` 的 `classroom-qa-wall`；程式牆 `LOCAL_APPS`）。visitor-badge `m255525.classroomqawall`。預定線上網址 <https://m255525.github.io/classroom-qa-wall/>（寫死在 `app.js` 的 `ONLINE`，非 github.io 網址時 QR code 一律指向它）。**2026-11-15 已上線**（repo 由使用者自己 `gh repo create`；push 之後才開 Pages，`build_type=workflow`，分支規則已是 master，第一次部署直接成功）。程式牆在 `REPO_META`（不在 LOCAL_APPS），github-dashboard 已補。
 
 ## 手機連線（借用創業島轉播站教室模式，Worker 沒改）
 - `room=ASK<6碼>&cls=1`，老師帶 `tkey`（存 `qaw.tkey.<碼>`）。學生只看得到老師；學生的聊天只有老師收到。
@@ -25,7 +25,7 @@
 
 ## 驗證
 - **改 data.js 後跑 `node tools/test_engine.mjs`**（約 38 萬項；會 import 創業島 `presence-worker/badwords.js` 檢查狀態碼不被過濾、遮字後 `¦` 仍能拆開）。
-- `python tools/e2e_qaw.py <截圖資料夾>`（需先開 8885；連**正式轉播站**隨機 ASK 房間；`QAW_BASE` 可測線上版）：老師＋投影視窗＋5 支手機：提問、不雅字詞遮罩、牆同步、按讚與收回、熱門排序、每人題數、先審核（待審不外流）、聚焦與回答完換下一題、修改同步、只讀投影視窗、擋下（4005、重新整理也進不來、問題拿下）、老師新增、同視窗投影、文字雲（題目、每人 3 詞、合併、隱藏、PNG、下一題、回看舊題）、CSV、列印紀錄、375／400px 無溢出、重新整理保留、後加入的手機收到整批、關閉加入、新的一場、使用中不能刪、關閉教室 4004。2026-11-15 本機全過、無 console 錯誤。
+- `python tools/e2e_qaw.py <截圖資料夾>`（需先開 8885；連**正式轉播站**隨機 ASK 房間；`QAW_BASE` 可測線上版）：老師＋投影視窗＋5 支手機：提問、不雅字詞遮罩、牆同步、按讚與收回、熱門排序、每人題數、先審核（待審不外流）、聚焦與回答完換下一題、修改同步、只讀投影視窗、擋下（4005、重新整理也進不來、問題拿下）、老師新增、同視窗投影、文字雲（題目、每人 3 詞、合併、隱藏、PNG、下一題、回看舊題）、CSV、列印紀錄、375／400px 無溢出、重新整理保留、後加入的手機收到整批、關閉加入、新的一場、使用中不能刪、關閉教室 4004。2026-11-15 本機全過、無 console 錯誤；上線後設 `QAW_BASE=https://m255525.github.io/classroom-qa-wall/` 對線上版再跑一輪全過。
 - **真手機掃 QR、投影機、30 人以上同時送出未實測。**
 
 ## 標準配備
