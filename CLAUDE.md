@@ -5,7 +5,7 @@
 2026-11-15 建立。使用者從「還有那些軟體的方向」清單中挑了第 1 項（課堂系列：匿名提問牆＋文字雲）。骨架（教室、分頁鎖、管理密碼、關閉加入、轉播站連線、標準配備）複製自 `peer-review-board`，**畫面改成軟木布告欄＋便條紙＋紅圖釘、文字雲是深綠毛氈板**。
 
 - 純靜態：`index.html`（CSS）＋`data.js`（訊息編解碼、讚數統計、文字雲斷詞合併與螺線排版；node 可 require，瀏覽器 `window.QAW`）＋`app.js`（老師 `T`、學生 `S`、連線 `NET`、投影畫面）＋`watermark.js`（列印浮水印，從同儕互評複製）＋`manual.html`＋PWA。
-- 本機預覽 port **8885**（`.claude/launch.json` 的 `classroom-qa-wall`；程式牆 `LOCAL_APPS`）。visitor-badge `m255525.classroomqawall`。預定線上網址 <https://m255525.github.io/classroom-qa-wall/>（寫死在 `app.js` 的 `ONLINE`，非 github.io 網址時 QR code 一律指向它）。**2026-11-15 已上線**（repo 由使用者自己 `gh repo create`；push 之後才開 Pages，`build_type=workflow`，分支規則已是 master，第一次部署直接成功）。程式牆在 `REPO_META`（不在 LOCAL_APPS），github-dashboard 已補。
+- 本機預覽 port **8885**（`.claude/launch.json` 的 `classroom-qa-wall`；程式牆 `LOCAL_APPS`）。visitor-badge `m255525.classroomqawall`。預定線上網址 <https://m255525.github.io/classroom-qa-wall/>（寫死在 `app.js` 的 `ONLINE`，非 github.io 網址時 QR code 一律指向它）。**2026-11-15 已上線**（repo 由使用者自己 `gh repo create`；push 之後才開 Pages，`build_type=workflow`，分支規則已是 master，第一次部署直接成功）。程式牆在 `REPO_META`（不在 LOCAL_APPS），github-dashboard 已補。已放進創業島「創業學校」（接力線 l33：課堂小幫手 → 提問牆 → 同儕互評）。
 
 ## 手機連線（借用創業島轉播站教室模式，Worker 沒改）
 - `room=ASK<6碼>&cls=1`，老師帶 `tkey`（存 `qaw.tkey.<碼>`）。學生只看得到老師；學生的聊天只有老師收到。
